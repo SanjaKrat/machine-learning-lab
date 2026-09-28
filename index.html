@@ -1,0 +1,823 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лабораторія машинного навчання</title>
+</head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F7FC; --grid:#E1E8F3; --paper:#FDFEFF; --ink:#172340; --ink2:#46526E; --muted:#56637F;
+  --navy:#172340; --on-navy:#F4F7FC; --yellow:#FFD447; --yellow-soft:#FFF4D1; --blue:#2E5BFF; --blue-soft:#E4EAFF;
+  --green:#16876A; --green-soft:#DDF3EC; --red:#D9432B; --red-soft:#FBE3DE; --violet:#7A4FD0; --violet-soft:#EEE6FB;
+  --orange:#C25E00; --orange-soft:#FDEBD8;
+  --line:#C9D3EA;
+  --display:'Unbounded','Arial Black',sans-serif; --body:'Rubik',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F172B; --grid:#18233D; --paper:#18233D; --ink:#EEF2FA; --ink2:#BCC7DE; --muted:#9AA7C2;
+    --navy:#0A1022; --on-navy:#F4F7FC; --yellow:#FFD447; --yellow-soft:#3A3318; --blue:#7C9BFF; --blue-soft:#1F2C5A;
+    --green:#3CC79F; --green-soft:#133A31; --red:#FF7A63; --red-soft:#43211B; --violet:#B395F5; --violet-soft:#2D2346;
+    --orange:#FFA95C; --orange-soft:#3D2A17; --line:#2C3A5C;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F172B; --grid:#18233D; --paper:#18233D; --ink:#EEF2FA; --ink2:#BCC7DE; --muted:#9AA7C2;
+  --navy:#0A1022; --on-navy:#F4F7FC; --yellow:#FFD447; --yellow-soft:#3A3318; --blue:#7C9BFF; --blue-soft:#1F2C5A;
+  --green:#3CC79F; --green-soft:#133A31; --red:#FF7A63; --red-soft:#43211B; --violet:#B395F5; --violet-soft:#2D2346;
+  --orange:#FFA95C; --orange-soft:#3D2A17; --line:#2C3A5C;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 32px),var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+header.top{background:var(--navy);color:var(--on-navy);padding-inline:16px;padding-block:18px 0}
+.top-in{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--yellow)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.6vw,38px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+.me{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-bottom:6px}
+.me label{font-size:14px;color:#C9D3EA}
+.me input{font:inherit;font-size:16px;padding:8px 12px;border-radius:10px;border:2px solid #3A4A70;background:#22305A;color:#F4F7FC;width:210px;max-width:100%}
+.stars{font-family:var(--display);font-weight:700;background:var(--yellow);color:#172340;border-radius:999px;padding:8px 16px;font-size:16px;white-space:nowrap}
+nav.tabs{max-width:1080px;margin:14px auto 0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+nav.tabs button{font:inherit;font-weight:600;font-size:15px;border:0;cursor:pointer;padding:12px 16px;border-radius:14px 14px 0 0;background:#22305A;color:#C9D3EA;white-space:nowrap;display:flex;gap:8px;align-items:center}
+nav.tabs button .n{font-family:var(--display);font-size:12px;background:#33447A;color:#F4F7FC;border-radius:6px;padding:2px 6px}
+nav.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+nav.tabs button[aria-selected="true"] .n{background:var(--blue);color:#fff}
+nav.tabs button .ok{color:var(--yellow);font-size:13px}
+nav.tabs button[aria-selected="true"] .ok{color:var(--orange)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+section.pane{padding-top:26px}
+.head{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(21px,3vw,29px);line-height:1.15;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:18px;line-height:1.25;margin:0 0 8px;text-wrap:balance}
+.tag{font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue)}
+.lead{color:var(--ink2);max-width:70ch;margin:6px 0 18px}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:18px 20px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.btn{font:inherit;font-weight:600;cursor:pointer;border-radius:12px;padding:10px 16px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font-size:16px}
+.btn:hover:not([disabled]){transform:translateY(-1px)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.small{padding:6px 12px;font-size:14px}
+.btn.sel{background:var(--navy);color:var(--on-navy);border-color:var(--navy)}
+.btn[disabled]{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fb{margin-top:14px;border-radius:14px;padding:14px 16px;font-size:16px}
+.fb.good{background:var(--green-soft)}
+.fb.bad{background:var(--red-soft)}
+.fb.info{background:var(--yellow-soft)}
+.fb strong{font-family:var(--display);font-weight:700;font-size:15px}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:15px}
+textarea,input[type=text],select{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:9px 12px;width:100%}
+textarea{min-height:64px;resize:vertical}
+label.q{display:block;font-weight:600;margin:0 0 6px}
+.note{font-size:14px;color:var(--muted)}
+.rule{background:var(--navy);color:var(--on-navy);border-radius:18px;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px}
+.rule b{color:var(--yellow);font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.5px;display:block;margin-bottom:2px}
+.rule span{color:#C9D3EA;font-size:15px}
+
+/* tab 1: aliens */
+.sub{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.zoo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.zoo .side{border-radius:18px;padding:14px 16px;border:2px solid var(--line);background:var(--paper)}
+.zoo .side.yes{border-color:var(--green)}
+.zoo .side.no{border-color:var(--red)}
+.zoo .side h3{display:flex;gap:8px;align-items:center}
+.pill{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;font-family:var(--body)}
+.pill.g{background:var(--green-soft);color:var(--green)}
+.pill.r{background:var(--red-soft);color:var(--red)}
+.pill.b{background:var(--blue-soft);color:var(--blue)}
+.herd{display:flex;flex-wrap:wrap;gap:6px}
+.herd svg{width:78px;height:78px}
+.tests{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.tcase{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.tcase svg{width:92px;height:92px}
+.tcase .row{justify-content:center;gap:6px}
+.tcase .btn{padding:6px 10px;font-size:14px}
+.tcase.right{border-color:var(--green);background:var(--green-soft)}
+.tcase.wrong{border-color:var(--red);background:var(--red-soft)}
+
+/* tab 2 */
+.sort-list{display:flex;flex-direction:column;gap:10px}
+.sort-item{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:12px 16px}
+.sort-item .txt{font-weight:500}
+.sort-item .why{grid-column:1/-1;font-size:15px;color:var(--ink2);border-top:1px dashed var(--line);padding-top:8px}
+.sort-item.right{border-color:var(--green)}
+.sort-item.wrong{border-color:var(--red)}
+@media (max-width:640px){.sort-item{grid-template-columns:1fr}.zoo{grid-template-columns:1fr}}
+
+/* tab 3 */
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:left;cursor:pointer;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;padding:10px 14px}
+.opt.right{border-color:var(--green);background:var(--green-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.linkbox{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--blue-soft);border-radius:14px;padding:12px 16px}
+.linkbox a{color:var(--blue);font-weight:600;word-break:break-all}
+
+/* tab 4: my model */
+.studio{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.studio{grid-template-columns:1fr}}
+.padwrap{display:flex;flex-direction:column;gap:10px}
+.pad{width:100%;max-width:340px;aspect-ratio:1;border:3px solid var(--ink);border-radius:18px;background:var(--paper);touch-action:none;cursor:crosshair;display:block}
+.mode{display:flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden;width:max-content;max-width:100%}
+.mode button{font:inherit;font-weight:600;border:0;background:var(--paper);color:var(--ink);padding:9px 14px;cursor:pointer}
+.mode button[aria-pressed="true"]{background:var(--navy);color:var(--on-navy)}
+.classes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:520px){.classes{grid-template-columns:1fr}}
+.cls{border:2px solid var(--line);border-radius:16px;padding:12px;background:var(--paper);display:flex;flex-direction:column;gap:10px}
+.cls.a{border-color:var(--blue)}
+.cls.b{border-color:var(--orange)}
+.cls .top{display:flex;gap:8px;align-items:center}
+.cls .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.cls.a .dot{background:var(--blue)} .cls.b .dot{background:var(--orange)}
+.cls input{padding:6px 10px}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;min-height:52px}
+.thumbs button{padding:0;border:2px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;width:48px;height:48px;overflow:hidden}
+.thumbs img{width:44px;height:44px;display:block}
+.thumbs .empty{font-size:14px;color:var(--muted);align-self:center}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:110px 1fr 56px;gap:10px;align-items:center;font-weight:600}
+.bar .track{height:26px;background:var(--grid);border-radius:8px;overflow:hidden}
+.bar .fill{height:100%;width:0;transition:width .35s}
+.bar.a .fill{background:var(--blue)} .bar.b .fill{background:var(--orange)}
+.bar .pct{font-variant-numeric:tabular-nums;text-align:right}
+.trainbar{height:10px;background:var(--grid);border-radius:999px;overflow:hidden}
+.trainbar i{display:block;height:100%;width:0;background:var(--green)}
+.status{display:inline-flex;gap:6px;align-items:center;font-weight:600;font-size:14px;border-radius:999px;padding:4px 12px}
+.status.off{background:var(--grid);color:var(--muted)}
+.status.on{background:var(--green-soft);color:var(--green)}
+.status.old{background:var(--yellow-soft);color:var(--orange)}
+.seebox{display:flex;gap:12px;align-items:center}
+.seebox canvas{width:84px;height:84px;image-rendering:pixelated;border-radius:8px;border:2px solid var(--line);background:#fff}
+.exp{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}
+.exp:first-of-type{border-top:0}
+.exp .num{font-family:var(--display);font-weight:700;background:var(--violet-soft);color:var(--violet);border-radius:8px;padding:4px 9px;font-size:14px}
+.exp p{margin:0 0 6px}
+
+/* tab 5 */
+.tm{width:100%;height:auto;display:block}
+.tmwrap{overflow-x:auto;background:var(--paper);border:2px solid var(--line);border-radius:18px;padding:12px}
+.checks{display:flex;flex-direction:column;gap:8px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+.checks input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--green)}
+.checks label.done{border-color:var(--green)}
+.gloss{width:100%;border-collapse:collapse;font-size:16px}
+.gloss td,.gloss th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.gloss th{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.gloss code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--blue-soft);color:var(--ink);padding:2px 6px;border-radius:6px;font-size:15px}
+.tbl{overflow-x:auto}
+.restbl{width:100%;border-collapse:collapse;min-width:560px}
+.restbl th,.restbl td{padding:6px;border-bottom:1px solid var(--line);text-align:left}
+.restbl th{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.restbl input,.restbl select{padding:6px 8px;font-size:15px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+/* tab 6 */
+.sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.sum .card{padding:14px 16px}
+.sum .big{font-family:var(--display);font-weight:800;font-size:28px;font-variant-numeric:tabular-nums}
+.feel{display:flex;flex-wrap:wrap;gap:10px}
+.feel button{font:inherit;cursor:pointer;border:2px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:10px 14px;text-align:left;flex:1 1 200px}
+.feel button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+pre.report{white-space:pre-wrap;background:var(--paper);border:2px dashed var(--line);border-radius:14px;padding:14px;font-family:var(--body);font-size:15px;margin:0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.btn:hover{transform:none!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div>
+      <div class="eyebrow">Інформатика · 7 клас · Урок 5 · §2, с. 20–22</div>
+      <h1>Лабораторія машинного навчання</h1>
+    </div>
+    <div class="me">
+      <label for="who">Прізвище, ім’я</label>
+      <input id="who" type="text" placeholder="Напр. Коваль Марія" autocomplete="off">
+      <span class="stars" id="stars">★ 0 / 15</span>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Вкладки лабораторії">
+    <button role="tab" data-tab="p1"><span class="n">1</span>Навчи прибульця<span class="ok" data-ok="0"></span></button>
+    <button role="tab" data-tab="p2"><span class="n">2</span>Правило чи приклади?<span class="ok" data-ok="1"></span></button>
+    <button role="tab" data-tab="p3"><span class="n">3</span>AI for Oceans<span class="ok" data-ok="2"></span></button>
+    <button role="tab" data-tab="p4"><span class="n">4</span>Моя модель<span class="ok" data-ok="3"></span></button>
+    <button role="tab" data-tab="p5"><span class="n">5</span>Кінь чи поні?<span class="ok" data-ok="4"></span></button>
+    <button role="tab" data-tab="p6"><span class="n">★</span>Результат</button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ============ TAB 1 ============ -->
+<section class="pane" id="p1" role="tabpanel">
+  <div class="head"><h2>Навчи прибульця</h2><span class="tag">Актуалізація · 5 хв</span></div>
+  <p class="lead">На планеті Зорг живуть <b>глорпи</b> та інші істоти. Правила, хто такий глорп, тобі ніхто не скаже. Є лише приклади. Роздивись їх і вгадай, хто з нових істот — глорп.</p>
+  <div class="sub" role="group" aria-label="Раунд">
+    <button class="btn small" id="r1btn">Раунд 1</button>
+    <button class="btn small" id="r2btn">Раунд 2 · обережно, пастка</button>
+  </div>
+  <div id="alienRound"></div>
+</section>
+
+<!-- ============ TAB 2 ============ -->
+<section class="pane" id="p2" role="tabpanel" hidden>
+  <div class="head"><h2>Правило чи приклади?</h2><span class="tag">Новий матеріал</span></div>
+  <p class="lead">Деякі задачі людина легко описує правилом, і тоді досить звичайної програми. А деякі правилом не опишеш, тому комп’ютер вчиться на прикладах. Це і є <b>машинне навчання</b>. Для кожної задачі обери, як її краще розв’язати.</p>
+  <div class="rule">
+    <div><b>📐 Правило</b><span>Людина сама пише інструкцію: «якщо… то…». Програма щоразу робить однаково.</span></div>
+    <div><b>🧠 Машинне навчання</b><span>Людина дає багато прикладів із відповідями. Програма сама шукає закономірність.</span></div>
+  </div>
+  <div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="count" id="sortCount">0 / 10</span><button class="btn small" id="sortReset">Почати знову</button></div>
+  <div class="sort-list" id="sortList"></div>
+</section>
+
+<!-- ============ TAB 3 ============ -->
+<section class="pane" id="p3" role="tabpanel" hidden>
+  <div class="head"><h2>AI for Oceans: риба чи сміття?</h2><span class="tag">Завдання № 5 А · 5 хв</span></div>
+  <p class="lead">Тут ти навчиш програму очищати океан: вона має відрізнити рибу від сміття. Ти будеш «вчителем» для машини.</p>
+  <div class="stack">
+    <div class="linkbox"><span>Посилання з підручника:</span><a href="https://studio.code.org/s/oceans/lessons/1/levels/2" target="_blank" rel="noopener">studio.code.org/s/oceans/lessons/1/levels/2</a></div>
+    <div class="card">
+      <h3>Що робити</h3>
+      <ol class="steps">
+        <li>Відкрий посилання. Якщо сайт англійською, унизу сторінки можна вибрати мову «Українська» (якщо її немає, вчитель перекладе).</li>
+        <li>Подивись на кожен об’єкт і натисни <b>«Так»</b>, якщо це риба, або <b>«Ні»</b>, якщо ні. Спочатку покажи лише 5–6 прикладів.</li>
+        <li>Натисни <b>«Далі»</b> і подивись, що робить ШІ. Чи помиляється він?</li>
+        <li>Повернись, додай ще 20–30 прикладів і запусти знову. Порівняй.</li>
+        <li>Дай відповіді нижче.</li>
+      </ol>
+    </div>
+    <div class="card" id="oceanQs"></div>
+    <div class="card">
+      <label class="q" for="oceanNote">Що змінилось, коли ти показав більше прикладів?</label>
+      <textarea id="oceanNote" placeholder="Коли прикладів було мало, ШІ… Коли стало більше…"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4 ============ -->
+<section class="pane" id="p4" role="tabpanel" hidden>
+  <div class="head"><h2>Моя модель</h2><span class="tag">Практична робота · 7 хв</span></div>
+  <p class="lead">Створи власну модель машинного навчання. Вона вчитиметься розрізняти два класи малюнків. Малюй мишкою в квадраті.</p>
+  <div class="rule">
+    <div><b>1 · Дані</b><span>Намалюй приклади й додай у клас A або B. Щонайменше по 5.</span></div>
+    <div><b>2 · Навчання</b><span>Натисни «Навчити модель». Вона запам’ятає, чим класи відрізняються.</span></div>
+    <div><b>3 · Перевірка</b><span>Перемкнись на «Перевірку», малюй нове й дивись, що скаже модель.</span></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="row">
+      <label for="preset" class="q" style="margin:0">Що будемо розрізняти?</label>
+      <select id="preset" style="width:auto;max-width:100%"></select>
+    </div>
+  </div>
+  <div class="studio">
+    <div class="padwrap">
+      <div class="mode" role="group" aria-label="Режим">
+        <button id="modeTrain" aria-pressed="true">✏️ Навчання</button>
+        <button id="modeTest" aria-pressed="false">🔍 Перевірка</button>
+      </div>
+      <canvas id="pad" class="pad" width="280" height="280" aria-label="Поле для малювання"></canvas>
+      <div class="row" id="trainBtns">
+        <button class="btn primary" id="addA">+ у клас A</button>
+        <button class="btn" id="addB" style="border-color:var(--orange);background:var(--orange);color:#fff">+ у клас B</button>
+        <button class="btn small" id="clearPad">Стерти</button>
+      </div>
+      <div class="row" id="testBtns" hidden>
+        <button class="btn small" id="clearPad2">Стерти й намалювати нове</button>
+      </div>
+      <div class="seebox"><canvas id="see" width="28" height="28" aria-label="Що бачить модель"></canvas><span class="note">Так малюнок «бачить» модель: 28 × 28 клітинок. Лише числа, скільки фарби в кожній клітинці.</span></div>
+    </div>
+    <div class="stack">
+      <div class="classes">
+        <div class="cls a">
+          <div class="top"><span class="dot"></span><input id="nameA" type="text" aria-label="Назва класу A"></div>
+          <div class="thumbs" id="thumbsA"></div>
+          <span class="count" id="countA">0 прикладів</span>
+        </div>
+        <div class="cls b">
+          <div class="top"><span class="dot"></span><input id="nameB" type="text" aria-label="Назва класу B"></div>
+          <div class="thumbs" id="thumbsB"></div>
+          <span class="count" id="countB">0 прикладів</span>
+        </div>
+      </div>
+      <p class="note" style="margin:0">Натисни на мініатюру, щоб прибрати невдалий приклад.</p>
+      <div class="card stack" style="gap:12px">
+        <div class="row" style="justify-content:space-between">
+          <button class="btn primary" id="trainBtn">🧠 Навчити модель</button>
+          <span class="status off" id="mstatus">Модель ще не навчена</span>
+        </div>
+        <div class="trainbar"><i id="trainFill"></i></div>
+        <div id="predictBox">
+          <h3 style="margin-bottom:10px">Що думає модель</h3>
+          <div class="bars">
+            <div class="bar a"><span id="barNameA">A</span><div class="track"><div class="fill" id="fillA"></div></div><span class="pct" id="pctA">—</span></div>
+            <div class="bar b"><span id="barNameB">B</span><div class="track"><div class="fill" id="fillB"></div></div><span class="pct" id="pctB">—</span></div>
+          </div>
+          <p class="note" id="predNote" style="margin:10px 0 0">Навчи модель, перемкнись на «Перевірку» і намалюй щось нове.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3>Експерименти дослідника</h3>
+    <p class="note" style="margin:0 0 6px">Зроби хоча б два. Коротко запиши, що побачив.</p>
+    <div id="exps"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 5 ============ -->
+<section class="pane" id="p5" role="tabpanel" hidden>
+  <div class="head"><h2>Кінь чи поні? · Teachable Machine</h2><span class="tag">Завдання № 5 Б · у парах</span></div>
+  <p class="lead">Мета з підручника: навчити комп’ютер відрізняти <b>коня</b> від <b>поні</b>. Поні — це невисокі конячки (до ≈ 1,5 м у холці) з коротшими ногами, густою гривою й міцнішим тілом. Для людини різниця очевидна, а правило для програми написати важко. Отже, вчимо на прикладах.</p>
+  <div class="stack">
+    <div class="linkbox"><span>Інструмент:</span><a href="https://teachablemachine.withgoogle.com/train/image" target="_blank" rel="noopener">teachablemachine.withgoogle.com/train/image</a></div>
+    <div class="tmwrap">
+      <svg class="tm" viewBox="0 0 900 330" role="img" aria-label="Схема вікна Teachable Machine: зліва два класи з кнопками завантаження, посередині кнопка навчання, праворуч перевірка">
+        <g font-family="Rubik, Arial, sans-serif" font-size="16">
+          <rect x="20" y="20" width="330" height="130" rx="14" fill="none" stroke="currentColor" stroke-width="2"/>
+          <text x="40" y="50" fill="currentColor" font-weight="700">Кінь</text><text x="90" y="50" fill="currentColor" opacity=".6">✎ (Class 1)</text>
+          <rect x="40" y="70" width="110" height="56" rx="8" fill="none" stroke="currentColor" stroke-dasharray="5 4"/><text x="60" y="104" fill="currentColor">⬆ Upload</text>
+          <rect x="165" y="70" width="44" height="56" rx="6" fill="#E0B070"/><rect x="215" y="70" width="44" height="56" rx="6" fill="#8A5A32"/><rect x="265" y="70" width="44" height="56" rx="6" fill="#C9C9C9"/>
+          <rect x="20" y="180" width="330" height="130" rx="14" fill="none" stroke="currentColor" stroke-width="2"/>
+          <text x="40" y="210" fill="currentColor" font-weight="700">Поні</text><text x="90" y="210" fill="currentColor" opacity=".6">✎ (Class 2)</text>
+          <rect x="40" y="230" width="110" height="56" rx="8" fill="none" stroke="currentColor" stroke-dasharray="5 4"/><text x="60" y="264" fill="currentColor">⬆ Upload</text>
+          <rect x="165" y="230" width="44" height="56" rx="6" fill="#6B4A2E"/><rect x="215" y="230" width="44" height="56" rx="6" fill="#F0E0C0"/><rect x="265" y="230" width="44" height="56" rx="6" fill="#3A3A3A"/>
+          <path d="M350 85 C 390 85, 390 165, 420 165 M350 245 C 390 245, 390 165, 420 165" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"/>
+          <rect x="420" y="125" width="170" height="80" rx="14" fill="none" stroke="currentColor" stroke-width="2"/>
+          <text x="440" y="160" fill="currentColor" font-weight="700">Training</text>
+          <rect x="440" y="170" width="130" height="24" rx="6" fill="#2E5BFF"/><text x="458" y="187" fill="#fff" font-size="14">Train Model</text>
+          <path d="M590 165 L620 165" stroke="currentColor" stroke-width="2" opacity=".5"/>
+          <rect x="620" y="20" width="260" height="290" rx="14" fill="none" stroke="currentColor" stroke-width="2"/>
+          <text x="640" y="50" fill="currentColor" font-weight="700">Preview</text>
+          <text x="640" y="80" fill="currentColor" opacity=".7" font-size="14">Input: ON · Webcam ▾ → File</text>
+          <rect x="640" y="95" width="220" height="120" rx="8" fill="none" stroke="currentColor" stroke-dasharray="5 4"/><text x="680" y="160" fill="currentColor" font-size="14">нове фото сюди</text>
+          <text x="640" y="245" fill="currentColor" font-size="14">Кінь</text><rect x="690" y="232" width="170" height="18" rx="4" fill="currentColor" opacity=".15"/><rect x="690" y="232" width="34" height="18" rx="4" fill="#2E5BFF"/>
+          <text x="640" y="280" fill="currentColor" font-size="14">Поні</text><rect x="690" y="267" width="170" height="18" rx="4" fill="currentColor" opacity=".15"/><rect x="690" y="267" width="136" height="18" rx="4" fill="#C25E00"/>
+        </g>
+        <g font-family="Unbounded, Arial Black, sans-serif" font-size="16" font-weight="700">
+          <circle cx="30" cy="30" r="16" fill="#FFD447"/><text x="24" y="36" fill="#172340">1</text>
+          <circle cx="30" cy="190" r="16" fill="#FFD447"/><text x="24" y="196" fill="#172340">2</text>
+          <circle cx="430" cy="135" r="16" fill="#FFD447"/><text x="424" y="141" fill="#172340">3</text>
+          <circle cx="630" cy="30" r="16" fill="#FFD447"/><text x="624" y="36" fill="#172340">4</text>
+        </g>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="card">
+        <h3>Крок за кроком</h3>
+        <div class="checks" id="tmChecks"></div>
+      </div>
+      <div class="card">
+        <h3>Англійські кнопки</h3>
+        <table class="gloss">
+          <tr><th>На екрані</th><th>Що означає</th></tr>
+          <tr><td><code>Get Started</code></td><td>Почати</td></tr>
+          <tr><td><code>Image Project</code> → <code>Standard</code></td><td>Проєкт із зображеннями, стандартна модель</td></tr>
+          <tr><td><code>Class 1</code> ✎</td><td>Назва класу. Натисни олівець і перейменуй</td></tr>
+          <tr><td><code>Upload</code></td><td>Завантажити фото з комп’ютера</td></tr>
+          <tr><td><code>Train Model</code></td><td>Навчити модель (не перемикай вкладку, поки вчиться)</td></tr>
+          <tr><td><code>Preview</code> · <code>Input</code></td><td>Перевірка моделі. Увімкни Input</td></tr>
+          <tr><td><code>Webcam ▾</code> → <code>File</code></td><td>Вебкамери немає, тож обираємо «Файл»</td></tr>
+          <tr><td><code>Output</code></td><td>Відповідь моделі у відсотках</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="fb info"><strong>Якісні дані — половина успіху.</strong> Добирай різних коней і поні: різні масті, пози, фон, зблизька й здалеку. Щонайменше по 10 фото в кожен клас. Фото для перевірки мають бути <b>нові</b>, яких модель не бачила під час навчання. Інакше це як списати відповіді на контрольній.</div>
+    <div class="card">
+      <h3>Перевір модель на нових фото</h3>
+      <div class="tbl"><table class="restbl" id="tmTable"></table></div>
+      <label class="q" for="tmWhy" style="margin-top:14px">Чому модель помилилась або була невпевнена? Як це виправити?</label>
+      <textarea id="tmWhy" placeholder="Можливо, на фото… Треба додати…"></textarea>
+    </div>
+    <p class="note">Teachable Machine не відкривається? Зроби вкладку 4 «Моя модель» з класами «Кінь» і «Поні» (намалюй схематично: великий і маленький) і запиши результати в таблицю.</p>
+  </div>
+</section>
+
+<!-- ============ TAB 6 ============ -->
+<section class="pane" id="p6" role="tabpanel" hidden>
+  <div class="head"><h2>Результат</h2><span class="tag">Покажи вчителю</span></div>
+  <div class="sum" id="sumCards"></div>
+  <div class="stack" style="margin-top:18px">
+    <div class="card">
+      <label class="q" for="concl1">Машинне навчання — це…</label>
+      <textarea id="concl1" placeholder="…коли комп’ютер…"></textarea>
+    </div>
+    <div class="card">
+      <label class="q" for="concl2">Щоб модель класифікувала добре, потрібно…</label>
+      <textarea id="concl2" placeholder="…багато різних прикладів, …"></textarea>
+    </div>
+    <div class="card">
+      <span class="q">Як я почуваюся з темою?</span>
+      <div class="feel" id="feel">
+        <button data-f="3" aria-pressed="false">😀 Можу пояснити, як навчається модель, і створив власну</button>
+        <button data-f="2" aria-pressed="false">🙂 Модель створив, але пояснити ще важко</button>
+        <button data-f="1" aria-pressed="false">🤔 Мені потрібна допомога</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Мій звіт</h3><button class="btn small" id="copyRep">Копіювати звіт</button></div>
+      <pre class="report" id="report"></pre>
+      <p class="note" id="copyNote" style="margin:8px 0 0"></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+const KEY='ml-lab-7-u5-v1';
+const def=()=>({who:'',tab:'p1',t1:{r1:{},r2:{},g1:'',g2:''},t2:{},t3:{},oceanNote:'',t4:{preset:0,nameA:'',nameB:'',A:[],B:[],trained:false,exp:['','','',''],bestConf:0},t5:{checks:[],rows:[]},c1:'',c2:'',feel:0});
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))||def()}catch(e){S=def()}
+S=Object.assign(def(),S);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- tabs ---------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function showTab(id){
+  tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id?'true':'false'));
+  document.querySelectorAll('section.pane').forEach(p=>p.hidden=p.id!==id);
+  S.tab=id;save();
+  if(id==='p6')renderResult();
+  if(id==='p4')resizeNothing();
+}
+tabs.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function resizeNothing(){}
+
+$('who').value=S.who;
+$('who').addEventListener('input',e=>{S.who=e.target.value;save()});
+
+/* ---------- creatures ---------- */
+const COL={r:'#E0634C',b:'#4A74FF',g:'#2FA37F',v:'#9068DE'};
+function creature(c){
+  const [col,sh,eyes,horns]=c;
+  const st='stroke="#172340" stroke-width="3" stroke-linejoin="round"';
+  let s='<svg viewBox="0 0 100 100" aria-hidden="true">';
+  const tri=sh==='t';
+  if(horns){
+    if(tri) s+=`<polygon points="40,42 34,14 48,33" fill="#FFD447" ${st}/><polygon points="52,33 66,14 60,42" fill="#FFD447" ${st}/>`;
+    else s+=`<polygon points="28,36 30,8 44,30" fill="#FFD447" ${st}/><polygon points="56,30 70,8 72,36" fill="#FFD447" ${st}/>`;
+  }
+  // legs
+  const ly=tri?86:84;
+  s+=`<rect x="32" y="${ly}" width="10" height="12" rx="3" fill="${COL[col]}" ${st}/><rect x="58" y="${ly}" width="10" height="12" rx="3" fill="${COL[col]}" ${st}/>`;
+  if(sh==='o') s+=`<ellipse cx="50" cy="58" rx="33" ry="30" fill="${COL[col]}" ${st}/>`;
+  else if(sh==='s') s+=`<rect x="17" y="27" width="66" height="61" rx="10" fill="${COL[col]}" ${st}/>`;
+  else s+=`<polygon points="50,20 88,90 12,90" fill="${COL[col]}" ${st}/>`;
+  const ey=tri?64:52;
+  const xs=eyes===1?[50]:eyes===2?[40,60]:(tri?[39,50,61]:[34,50,66]);
+  const r=tri?5.5:7;
+  xs.forEach(x=>{s+=`<circle cx="${x}" cy="${ey}" r="${r}" fill="#fff" ${st}/><circle cx="${x}" cy="${ey+1}" r="${r*0.42}" fill="#172340"/>`});
+  const my=tri?78:72;
+  s+=`<path d="M42 ${my} Q50 ${my+6} 58 ${my}" fill="none" stroke="#172340" stroke-width="3" stroke-linecap="round"/>`;
+  return s+'</svg>';
+}
+const ROUNDS={
+  r1:{
+    title:'Раунд 1',
+    yes:[['r','o',2,1],['b','s',1,1],['g','t',3,1],['v','o',3,1]],
+    no:[['r','s',2,0],['b','o',1,0],['g','o',2,0],['v','t',3,0]],
+    test:[[['g','s',2,1],1],[['r','o',3,0],0],[['b','t',2,1],1],[['v','s',1,0],0],[['r','t',1,1],1],[['b','s',3,0],0]],
+    reveal:'<strong>Правило: у глорпа є ріжки.</strong> Колір, форма й кількість очей не мають значення. Тобі ніхто не пояснював правила, ти знайшов закономірність у прикладах. Саме так вчиться машина: їй дають приклади з відповідями («глорп» / «не глорп»), і вона сама шукає, чим групи відрізняються.'
+  },
+  r2:{
+    title:'Раунд 2',
+    yes:[['b','o',3,0],['b','s',3,1],['b','t',3,0],['b','o',3,1]],
+    no:[['r','o',2,1],['g','s',1,0],['r','t',2,0],['g','o',1,1]],
+    test:[[['r','s',3,0],1],[['b','o',1,0],0],[['g','t',3,1],1],[['b','s',2,1],0],[['v','o',3,0],1],[['r','o',2,0],0]],
+    reveal:'<strong>Правило: у глорпа три ока.</strong> Але в прикладах усі глорпи були ще й <b>сині</b>. Колір «підказував» неправильну відповідь, і багато хто вивчив не те правило. Модель машинного навчання теж так помиляється: якщо на всіх фото коней є трава, а на фото поні сніг, модель може навчитися розрізняти траву й сніг замість коней і поні. <b>Дані мають бути різноманітними.</b>'
+  }
+};
+let curRound='r1';
+function renderRound(){
+  const R=ROUNDS[curRound], A=S.t1[curRound];
+  $('r1btn').classList.toggle('sel',curRound==='r1');
+  $('r2btn').classList.toggle('sel',curRound==='r2');
+  const done=Object.keys(A).length===R.test.length;
+  let h=`<div class="zoo">
+    <div class="side yes"><h3><span class="pill g">Глорпи</span></h3><div class="herd">${R.yes.map(creature).join('')}</div></div>
+    <div class="side no"><h3><span class="pill r">Не глорпи</span></h3><div class="herd">${R.no.map(creature).join('')}</div></div>
+  </div>
+  <h3 style="margin-top:20px">Нові істоти. Хто з них глорп?</h3>
+  <div class="tests">`;
+  R.test.forEach((t,i)=>{
+    const a=A[i];
+    let cls='';
+    if(done) cls=(a===t[1])?'right':'wrong';
+    h+=`<div class="tcase ${cls}">${creature(t[0])}<div class="row">
+      <button class="btn ${a===1?'sel':''}" data-i="${i}" data-v="1" ${done?'disabled':''}>Глорп</button>
+      <button class="btn ${a===0?'sel':''}" data-i="${i}" data-v="0" ${done?'disabled':''}>Ні</button></div>
+      ${done?`<span class="pill ${a===t[1]?'g':'r'}">${t[1]?'це глорп':'не глорп'}</span>`:''}</div>`;
+  });
+  h+=`</div>
+  <div class="card" style="margin-top:16px"><label class="q" for="guess">Яке правило ти знайшов? Хто такий глорп?</label>
+  <input type="text" id="guess" placeholder="Глорп — це істота, у якої…" value="${esc(curRound==='r1'?S.t1.g1:S.t1.g2)}"></div>`;
+  if(done){
+    const sc=R.test.reduce((n,t,i)=>n+(A[i]===t[1]?1:0),0);
+    h+=`<div class="fb ${sc>=5?'good':'info'}"><p style="margin:0 0 8px"><strong>Правильно: ${sc} з 6.</strong></p>${R.reveal}</div>
+    <div class="row" style="margin-top:12px"><button class="btn small" id="redo">Спробувати раунд ще раз</button>${curRound==='r1'?'<button class="btn primary small" id="toR2">До раунду 2 →</button>':''}</div>`;
+  }else{
+    h+=`<p class="count" style="margin-top:10px">Відповідей: ${Object.keys(A).length} / 6. Правильне правило з’явиться, коли відповіси на всі.</p>`;
+  }
+  $('alienRound').innerHTML=h;
+  $('alienRound').querySelectorAll('.tcase .btn').forEach(b=>b.addEventListener('click',()=>{
+    A[b.dataset.i]=+b.dataset.v;save();renderRound();updateStars();
+  }));
+  $('guess').addEventListener('input',e=>{if(curRound==='r1')S.t1.g1=e.target.value;else S.t1.g2=e.target.value;save();updateStars()});
+  if(done){
+    $('redo').addEventListener('click',()=>{S.t1[curRound]={};save();renderRound();updateStars()});
+    const t=$('toR2'); if(t)t.addEventListener('click',()=>{curRound='r2';renderRound()});
+  }
+}
+$('r1btn').addEventListener('click',()=>{curRound='r1';renderRound()});
+$('r2btn').addEventListener('click',()=>{curRound='r2';renderRound()});
+
+/* ---------- tab 2 ---------- */
+const SORT=[
+ ['🧮 Калькулятор множить два числа','r','Множення має точне правило. Людина записує його один раз, і програма ніколи не помиляється.'],
+ ['📱 Телефон упізнає твоє обличчя й розблоковується','m','Правило «як виглядає саме твоє обличчя» не запишеш. Модель вчилася на прикладах облич.'],
+ ['🔔 Шкільний дзвінок лунає за розкладом','r','Розклад — готове правило: о 8:30 дзвінок. Вчитися нічого не треба.'],
+ ['📧 Пошта переносить підозрілі листи в «Спам»','m','Спамери постійно вигадують нові хитрощі. Фільтр вчиться на мільйонах листів, які люди позначили як спам.'],
+ ['💱 Переведення гривень у долари за курсом','r','Сума × курс. Звичайна формула.'],
+ ['▶️ YouTube радить відео, які тобі сподобаються','m','Модель вчиться на тому, що ти й інші люди дивилися та лайкали.'],
+ ['🔤 Сортування прізвищ за алфавітом','r','Порядок букв відомий, це чітке правило.'],
+ ['✍️ Розпізнавання цифри, написаної від руки','m','Кожен пише «7» по-своєму. Модель вчилася на тисячах рукописних прикладів.'],
+ ['❌ Хрестики-нулики: чи є три в ряд?','r','Перевірити три клітинки в ряд легко правилом «якщо… то…».'],
+ ['🌐 Перекладач перекладає речення з англійської','m','Мова надто складна для списку правил. Сучасні перекладачі вчаться на мільйонах перекладених текстів.']
+];
+function renderSort(){
+  let n=0;
+  $('sortList').innerHTML=SORT.map((it,i)=>{
+    const a=S.t2[i];
+    if(a)n++;
+    const ok=a===it[1];
+    return `<div class="sort-item ${a?(ok?'right':'wrong'):''}"><span class="txt">${it[0]}</span>
+    <div class="row"><button class="btn small ${a==='r'?'sel':''}" data-i="${i}" data-v="r">📐 Правило</button><button class="btn small ${a==='m'?'sel':''}" data-i="${i}" data-v="m">🧠 Машинне навчання</button></div>
+    ${a?`<div class="why">${ok?'✅ Так.':'❌ Не зовсім. Правильно: '+(it[1]==='r'?'правило.':'машинне навчання.')} ${it[2]}</div>`:''}</div>`;
+  }).join('');
+  const right=SORT.filter((it,i)=>S.t2[i]===it[1]).length;
+  $('sortCount').textContent=`Відповідей: ${n} / 10 · правильно: ${right}`;
+  $('sortList').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{S.t2[b.dataset.i]=b.dataset.v;save();renderSort();updateStars()}));
+}
+$('sortReset').addEventListener('click',()=>{S.t2={};save();renderSort();updateStars()});
+
+/* ---------- tab 3 ---------- */
+const OQ=[
+ ['Що ти робив, щоб навчити ШІ?',['Писав програмний код','Показував приклади й казав «риба» або «не риба»','Нічого, ШІ вже все вмів'],1,'Ти давав приклади з правильними відповідями. Це і є навчання з учителем, а ти був учителем.'],
+ ['На скільки груп (класів) ШІ ділив об’єкти?',['На одну','На дві: «риба» і «не риба»','На стільки, скільки є видів риб'],1,'Два класи. Розкладати об’єкти по класах називається класифікацією.'],
+ ['Що буде, якщо кілька разів назвати пляшку «рибою»?',['Нічого, ШІ сам здогадається','ШІ почне вважати сміття рибою','ШІ перестане працювати'],1,'Модель вчиться лише з твоїх прикладів. Неправильні приклади — неправильна модель.']
+];
+function renderOcean(){
+  $('oceanQs').innerHTML=OQ.map((q,i)=>{
+    const a=S.t3[i];
+    return `<div style="margin-bottom:14px"><p class="q" style="margin:0 0 8px">${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>{
+      let c='';if(a!==undefined){if(j===q[2])c='right';else if(j===a)c='wrong';}
+      return `<button class="opt ${c}" data-i="${i}" data-j="${j}">${o}</button>`}).join('')}</div>
+      ${a!==undefined?`<div class="fb ${a===q[2]?'good':'bad'}" style="margin-top:8px">${q[3]}</div>`:''}</div>`;
+  }).join('');
+  $('oceanQs').querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{S.t3[b.dataset.i]=+b.dataset.j;save();renderOcean();updateStars()}));
+}
+$('oceanNote').value=S.oceanNote;
+$('oceanNote').addEventListener('input',e=>{S.oceanNote=e.target.value;save()});
+
+/* ---------- tab 4: drawing model ---------- */
+const PRESETS=[['Сонце ☀','Хмара ☁'],['Будинок 🏠','Дерево 🌳'],['Кіт 🐱','Риба 🐟'],['Цифра 1','Цифра 7'],['Кінь 🐴','Поні (маленький)'],['Свої назви','']];
+$('preset').innerHTML=PRESETS.map((p,i)=>`<option value="${i}">${i===5?'Свої назви класів':p[0]+' чи '+p[1]}</option>`).join('');
+$('preset').value=S.t4.preset;
+if(!S.t4.nameA){S.t4.nameA=PRESETS[S.t4.preset][0];S.t4.nameB=PRESETS[S.t4.preset][1];}
+$('nameA').value=S.t4.nameA;$('nameB').value=S.t4.nameB;
+$('preset').addEventListener('change',e=>{
+  const i=+e.target.value;S.t4.preset=i;
+  if(i<5){S.t4.nameA=PRESETS[i][0];S.t4.nameB=PRESETS[i][1];}else{S.t4.nameA='Клас A';S.t4.nameB='Клас B';}
+  $('nameA').value=S.t4.nameA;$('nameB').value=S.t4.nameB;
+  if(S.t4.A.length||S.t4.B.length){S.t4.A=[];S.t4.B=[];S.t4.trained=false;model=null;}
+  save();renderClasses();
+});
+['A','B'].forEach(k=>$('name'+k).addEventListener('input',e=>{S.t4['name'+k]=e.target.value;save();renderNames()}));
+
+const pad=$('pad'),ctx=pad.getContext('2d');
+let drawing=false,last=null,inked=false,box=null,mode='train',model=null;
+function inkColor(){return getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#172340'}
+function clearPad(){ctx.clearRect(0,0,280,280);inked=false;box=null;drawSee(null);if(mode==='test')showPred(null)}
+function pos(e){const r=pad.getBoundingClientRect();return[(e.clientX-r.left)*280/r.width,(e.clientY-r.top)*280/r.height]}
+function grow(p){if(!box)box=[p[0],p[1],p[0],p[1]];else{box[0]=Math.min(box[0],p[0]);box[1]=Math.min(box[1],p[1]);box[2]=Math.max(box[2],p[0]);box[3]=Math.max(box[3],p[1])}}
+pad.addEventListener('pointerdown',e=>{e.preventDefault();pad.setPointerCapture(e.pointerId);drawing=true;last=pos(e);grow(last);
+  ctx.fillStyle=inkColor();ctx.beginPath();ctx.arc(last[0],last[1],6,0,Math.PI*2);ctx.fill();inked=true});
+pad.addEventListener('pointermove',e=>{if(!drawing)return;const p=pos(e);ctx.strokeStyle=inkColor();ctx.lineWidth=12;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p;grow(p);inked=true});
+function endStroke(){if(!drawing)return;drawing=false;const v=features();drawSee(v);if(mode==='test')predictNow(v)}
+pad.addEventListener('pointerup',endStroke);pad.addEventListener('pointercancel',endStroke);pad.addEventListener('pointerleave',()=>{});
+
+const off=document.createElement('canvas');off.width=28;off.height=28;const octx=off.getContext('2d',{willReadFrequently:true});
+function features(){
+  if(!inked||!box)return null;
+  const m=10;let x0=box[0]-m,y0=box[1]-m,x1=box[2]+m,y1=box[3]+m;
+  let w=x1-x0,h=y1-y0,s=Math.max(w,h,40);
+  const cx=(x0+x1)/2,cy=(y0+y1)/2;
+  octx.clearRect(0,0,28,28);octx.imageSmoothingEnabled=true;octx.imageSmoothingQuality='high';
+  octx.drawImage(pad,cx-s/2,cy-s/2,s,s,2,2,24,24);
+  const d=octx.getImageData(0,0,28,28).data;
+  const g=new Float32Array(784);
+  for(let i=0;i<784;i++)g[i]=d[i*4+3]/255;
+  const b=new Array(784);
+  for(let y=0;y<28;y++)for(let x=0;x<28;x++){let sum=0,c=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const yy=y+dy,xx=x+dx;if(yy<0||yy>27||xx<0||xx>27)continue;const wgt=(dx===0&&dy===0)?2:1;sum+=g[yy*28+xx]*wgt;c+=wgt}b[y*28+x]=Math.round(sum/c*100)/100}
+  return b;
+}
+function norm(v){let m=0;for(const a of v)m+=a;m/=v.length;const o=v.map(a=>a-m);let n=0;for(const a of o)n+=a*a;n=Math.sqrt(n)||1;return o.map(a=>a/n)}
+function dot(a,b){let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s}
+const see=$('see'),sctx=see.getContext('2d');
+function drawSee(v){sctx.fillStyle='#ffffff';sctx.fillRect(0,0,28,28);if(!v)return;const img=sctx.createImageData(28,28);for(let i=0;i<784;i++){const a=Math.min(1,v[i]*1.3),c=Math.round(255-a*230);img.data[i*4]=c;img.data[i*4+1]=c;img.data[i*4+2]=Math.round(255-a*190);img.data[i*4+3]=255}sctx.putImageData(img,0,0)}
+function thumb(){
+  const t=document.createElement('canvas');t.width=56;t.height=56;const c=t.getContext('2d');
+  c.fillStyle='#FDFEFF';c.fillRect(0,0,56,56);
+  const tmp=document.createElement('canvas');tmp.width=280;tmp.height=280;const tc=tmp.getContext('2d');tc.drawImage(pad,0,0);tc.globalCompositeOperation='source-in';tc.fillStyle='#172340';tc.fillRect(0,0,280,280);
+  c.drawImage(tmp,0,0,280,280,0,0,56,56);return t.toDataURL('image/png');
+}
+function addTo(k){
+  const v=features();
+  if(!v){flashNote('Спочатку намалюй щось у квадраті.');return}
+  S.t4[k].push({v,t:thumb()});
+  if(S.t4.trained)markOld();
+  save();clearPad();renderClasses();updateStars();
+}
+$('addA').addEventListener('click',()=>addTo('A'));
+$('addB').addEventListener('click',()=>addTo('B'));
+$('clearPad').addEventListener('click',clearPad);
+$('clearPad2').addEventListener('click',clearPad);
+function plural(n){const a=n%10,b=n%100;if(a===1&&b!==11)return'приклад';if(a>=2&&a<=4&&(b<12||b>14))return'приклади';return'прикладів'}
+function renderNames(){$('barNameA').textContent=S.t4.nameA||'A';$('barNameB').textContent=S.t4.nameB||'B'}
+function renderClasses(){
+  ['A','B'].forEach(k=>{
+    const arr=S.t4[k];
+    $('thumbs'+k).innerHTML=arr.length?arr.map((e,i)=>`<button data-k="${k}" data-i="${i}" title="Прибрати цей приклад"><img src="${e.t}" alt="приклад ${i+1}"></button>`).join(''):'<span class="empty">Тут з’являться твої малюнки</span>';
+    $('count'+k).textContent=`${arr.length} ${plural(arr.length)}`;
+  });
+  document.querySelectorAll('.thumbs button').forEach(b=>b.addEventListener('click',()=>{S.t4[b.dataset.k].splice(+b.dataset.i,1);if(S.t4.trained)markOld();save();renderClasses();updateStars()}));
+  renderNames();
+  $('trainBtn').disabled=!(S.t4.A.length&&S.t4.B.length);
+}
+let stale=false;
+function markOld(){stale=true;setStatus()}
+function setStatus(){
+  const st=$('mstatus');
+  if(!model){st.className='status off';st.textContent=S.t4.A.length&&S.t4.B.length?'Модель ще не навчена':'Потрібен хоча б 1 приклад у кожному класі';return}
+  if(stale){st.className='status old';st.textContent='⚠ Дані змінились. Навчи ще раз';return}
+  st.className='status on';st.textContent=`✓ Навчена на ${model.A.length+model.B.length} прикладах`;
+}
+function train(){
+  const A=S.t4.A,B=S.t4.B;if(!A.length||!B.length)return;
+  const total=A.length+B.length;let i=0;$('trainBtn').disabled=true;
+  const f=$('trainFill');f.style.width='0';
+  const st=$('mstatus');st.className='status old';
+  const tick=setInterval(()=>{i++;f.style.width=Math.min(100,i/total*100)+'%';st.textContent=`Вивчаю приклад ${Math.min(i,total)} з ${total}…`;
+    if(i>=total){clearInterval(tick);
+      model={A:A.map(e=>norm(e.v)),B:B.map(e=>norm(e.v))};stale=false;S.t4.trained=true;S.t4.trainedN=[A.length,B.length];save();setStatus();$('trainBtn').disabled=false;updateStars();
+      $('predNote').textContent='Готово! Перемкнись на «Перевірку» й намалюй щось нове.';
+      if(mode==='test'){const v=features();if(v)predictNow(v)}
+    }},Math.max(40,Math.min(160,1600/total)));
+}
+$('trainBtn').addEventListener('click',train);
+function score(list,x){const s=list.map(v=>dot(v,x)).sort((a,b)=>b-a);const k=Math.min(3,s.length);let m=0;for(let i=0;i<k;i++)m+=s[i];return{avg:m/k,best:s[0]}}
+function predictNow(v){
+  if(!model){showPred(null,'Модель ще не навчена. Натисни «Навчити модель».');return}
+  if(!v){showPred(null);return}
+  const x=norm(v);const a=score(model.A,x),b=score(model.B,x);
+  const T=6;const ea=Math.exp(T*a.avg),eb=Math.exp(T*b.avg);const pa=ea/(ea+eb);
+  const best=Math.max(a.best,b.best);
+  const win=pa>=.5?(S.t4.nameA||'A'):(S.t4.nameB||'B');const conf=Math.round(Math.max(pa,1-pa)*100);
+  let note=`Модель вважає, що це <b>${esc(win)}</b> (на ${conf}%).`;
+  if(best<0.35)note+=' Але цей малюнок мало схожий на всі приклади. Модель однаково обирає один із двох класів, бо інших вона не знає.';
+  else if(conf<65)note+=' Модель вагається: малюнок схожий на обидва класи.';
+  showPred(pa,note);
+  if(conf>S.t4.bestConf){S.t4.bestConf=conf;save()}
+}
+function showPred(pa,note){
+  if(pa===null||pa===undefined){$('fillA').style.width='0';$('fillB').style.width='0';$('pctA').textContent='—';$('pctB').textContent='—';$('predNote').innerHTML=note||'Намалюй щось нове в квадраті.';return}
+  $('fillA').style.width=Math.round(pa*100)+'%';$('fillB').style.width=Math.round((1-pa)*100)+'%';
+  $('pctA').textContent=Math.round(pa*100)+'%';$('pctB').textContent=Math.round((1-pa)*100)+'%';$('predNote').innerHTML=note;
+}
+function setMode(m){
+  mode=m;$('modeTrain').setAttribute('aria-pressed',m==='train');$('modeTest').setAttribute('aria-pressed',m==='test');
+  $('trainBtns').hidden=m!=='train';$('testBtns').hidden=m!=='test';
+  pad.style.borderColor=m==='test'?'var(--green)':'var(--ink)';
+  clearPad();
+  if(m==='test'&&!model)showPred(null,'Модель ще не навчена. Натисни «Навчити модель».');
+  if(m==='train')$('predNote').textContent=model?'Щоб перевірити модель, перемкнись на «Перевірку».':'Навчи модель, перемкнись на «Перевірку» і намалюй щось нове.';
+}
+$('modeTrain').addEventListener('click',()=>setMode('train'));
+$('modeTest').addEventListener('click',()=>setMode('test'));
+let noteT;function flashNote(t){$('predNote').textContent=t;clearTimeout(noteT)}
+// restore model if trained before
+if(S.t4.trained&&S.t4.A.length&&S.t4.B.length){model={A:S.t4.A.map(e=>norm(e.v)),B:S.t4.B.map(e=>norm(e.v))};}
+const EXPS=[
+ ['Мало даних','Прибери зайве, щоб у кожному класі був лише 1 приклад. Навчи й перевір на 4 нових малюнках. Скільки правильних?'],
+ ['Більше даних','Додай до 6–8 різних прикладів у кожен клас (великі, маленькі, різні). Навчи знову. Стало краще?'],
+ ['Незнайомий об’єкт','Намалюй те, чого немає в жодному класі (машинку, квітку). Що відповіла модель? Чому?'],
+ ['Зіпсовані дані','Додай 3 малюнки класу A в клас B. Навчи знову й перевір. Що змінилось?']
+];
+function renderExps(){
+  $('exps').innerHTML=EXPS.map((e,i)=>`<div class="exp"><span class="num">${i+1}</span><div><p><b>${e[0]}.</b> ${e[1]}</p><input type="text" id="exp${i}" placeholder="Я помітив, що…" value="${esc(S.t4.exp[i]||'')}"></div></div>`).join('');
+  EXPS.forEach((e,i)=>$('exp'+i).addEventListener('input',ev=>{S.t4.exp[i]=ev.target.value;save();updateStars()}));
+}
+
+/* ---------- tab 5 ---------- */
+const CHECKS=[
+ 'Знайди в інтернеті щонайменше 10 фото коней і 10 фото поні. Збережи їх у дві папки: «Кінь» і «Поні». Ще 2–3 фото кожного відклади окремо для перевірки',
+ 'Відкрий Teachable Machine → Get Started → Image Project → Standard image model',
+ 'Перейменуй Class 1 на «Кінь», Class 2 на «Поні»',
+ 'Натисни Upload у класі «Кінь» і завантаж фото коней ①. Так само для поні ②',
+ 'Натисни Train Model ③ і дочекайся кінця навчання',
+ 'У Preview ④ перемкни Webcam на File і завантаж нове фото для перевірки',
+ 'Запиши результати в таблицю нижче'
+];
+function renderChecks(){
+  $('tmChecks').innerHTML=CHECKS.map((c,i)=>`<label class="${S.t5.checks[i]?'done':''}"><input type="checkbox" id="chk${i}" ${S.t5.checks[i]?'checked':''}><span>${c}</span></label>`).join('');
+  CHECKS.forEach((c,i)=>$('chk'+i).addEventListener('change',e=>{S.t5.checks[i]=e.target.checked;save();renderChecks();updateStars()}));
+}
+function renderTable(){
+  while(S.t5.rows.length<5)S.t5.rows.push({d:'',t:'',p:'',o:''});
+  $('tmTable').innerHTML=`<tr><th>№</th><th>Що на фото (насправді)</th><th>Відповідь моделі</th><th>Впевненість, %</th><th>Правильно?</th></tr>`+
+   S.t5.rows.map((r,i)=>`<tr><td>${i+1}</td>
+   <td><input type="text" id="rd${i}" value="${esc(r.d)}" placeholder="${i===0?'білий кінь у полі':''}" aria-label="Фото ${i+1}: що насправді"></td>
+   <td><select id="rt${i}" aria-label="Фото ${i+1}: відповідь моделі"><option value=""></option><option ${r.t==='Кінь'?'selected':''}>Кінь</option><option ${r.t==='Поні'?'selected':''}>Поні</option></select></td>
+   <td><input type="text" id="rp${i}" value="${esc(r.p)}" inputmode="numeric" placeholder="${i===0?'87':''}" aria-label="Фото ${i+1}: впевненість"></td>
+   <td><select id="ro${i}" aria-label="Фото ${i+1}: правильно?"><option value=""></option><option ${r.o==='так'?'selected':''}>так</option><option ${r.o==='ні'?'selected':''}>ні</option></select></td></tr>`).join('');
+  S.t5.rows.forEach((r,i)=>{['d','t','p','o'].forEach(f=>{const el=$('r'+f+i);el.addEventListener(el.tagName==='SELECT'?'change':'input',e=>{r[f]=e.target.value;save();updateStars()})})});
+}
+$('tmWhy').value=S.t5.why||'';
+$('tmWhy').addEventListener('input',e=>{S.t5.why=e.target.value;save();updateStars()});
+
+/* ---------- stars ---------- */
+function tabStars(){
+  const r1=Object.keys(S.t1.r1).length===6,r2=Object.keys(S.t1.r2).length===6;
+  const t1=(r1?1:0)+(r2?1:0)+((S.t1.g1||'').trim().length>3&&(S.t1.g2||'').trim().length>3?1:0);
+  const ans=Object.keys(S.t2).length,right=SORT.filter((it,i)=>S.t2[i]===it[1]).length;
+  const t2=(ans===10?1:0)+(right>=8?1:0)+(right===10?1:0);
+  const t3=OQ.filter((q,i)=>S.t3[i]===q[2]).length;
+  const nA=S.t4.A.length,nB=S.t4.B.length;const nexp=S.t4.exp.filter(x=>x&&x.trim().length>2).length;
+  const t4=((S.t4.trained&&nA>=5&&nB>=5)?1:0)+(nexp>=2?1:0)+(nexp===4?1:0);
+  const nrows=S.t5.rows.filter(r=>r.t&&r.o).length;
+  const t5=(CHECKS.every((c,i)=>S.t5.checks[i])?1:0)+(nrows>=3?1:0)+((S.t5.why||'').trim().length>5?1:0);
+  return[t1,t2,t3,t4,t5];
+}
+function updateStars(){
+  const s=tabStars();const tot=s.reduce((a,b)=>a+b,0);
+  $('stars').textContent=`★ ${tot} / 15`;
+  document.querySelectorAll('[data-ok]').forEach(el=>{const v=s[+el.dataset.ok];el.textContent=v?'★'.repeat(v):''});
+}
+
+/* ---------- result ---------- */
+const NAMES=['Навчи прибульця','Правило чи приклади?','AI for Oceans','Моя модель','Кінь чи поні?'];
+function renderResult(){
+  const s=tabStars();
+  $('sumCards').innerHTML=s.map((v,i)=>`<div class="card"><span class="note">${i+1} · ${NAMES[i]}</span><div class="big">${'★'.repeat(v)}${'☆'.repeat(3-v)}</div></div>`).join('')+
+   `<div class="card" style="background:var(--navy);border-color:var(--navy);color:var(--on-navy)"><span class="note" style="color:#C9D3EA">Разом</span><div class="big" style="color:var(--yellow)">${s.reduce((a,b)=>a+b,0)} / 15</div></div>`;
+  $('concl1').value=S.c1;$('concl2').value=S.c2;
+  document.querySelectorAll('#feel button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.f===S.feel)));
+  buildReport();
+}
+function buildReport(){
+  const s=tabStars();const R1=ROUNDS.r1,R2=ROUNDS.r2;
+  const sc=k=>ROUNDS[k].test.reduce((n,t,i)=>n+(S.t1[k][i]===t[1]?1:0),0);
+  const right=SORT.filter((it,i)=>S.t2[i]===it[1]).length;
+  const rows=S.t5.rows.filter(r=>r.t);
+  const feel={3:'😀 можу пояснити',2:'🙂 ще важко пояснити',1:'🤔 потрібна допомога'}[S.feel]||'—';
+  const lines=[
+   `Лабораторія машинного навчання · 7 клас · Урок 5`,
+   `Учень/учениця: ${S.who||'—'}`,
+   `Зірочки: ${s.reduce((a,b)=>a+b,0)} / 15`,
+   ``,
+   `1. Прибулець: раунд 1 — ${sc('r1')}/6, раунд 2 — ${sc('r2')}/6`,
+   `   Моє правило (раунд 2): ${S.t1.g2||'—'}`,
+   `2. Правило чи приклади: ${right}/10`,
+   `3. AI for Oceans: ${OQ.filter((q,i)=>S.t3[i]===q[2]).length}/3. ${S.oceanNote||''}`,
+   `4. Моя модель «${S.t4.nameA}» / «${S.t4.nameB}»: ${S.t4.A.length} + ${S.t4.B.length} прикладів${S.t4.trained?', навчена':''}`,
+   ...S.t4.exp.map((e,i)=>e?`   Експ. ${i+1}: ${e}`:'').filter(Boolean),
+   `5. Teachable Machine: перевірено фото — ${rows.length}, правильно — ${rows.filter(r=>r.o==='так').length}`,
+   S.t5.why?`   Чому помилялась: ${S.t5.why}`:'',
+   ``,
+   `Машинне навчання — це ${S.c1||'…'}`,
+   `Щоб модель класифікувала добре, потрібно ${S.c2||'…'}`,
+   `Самооцінка: ${feel}`
+  ].filter(l=>l!==undefined);
+  $('report').textContent=lines.join('\n');
+}
+$('concl1').addEventListener('input',e=>{S.c1=e.target.value;save();buildReport()});
+$('concl2').addEventListener('input',e=>{S.c2=e.target.value;save();buildReport()});
+document.querySelectorAll('#feel button').forEach(b=>b.addEventListener('click',()=>{S.feel=+b.dataset.f;save();renderResult()}));
+$('copyRep').addEventListener('click',()=>{
+  const t=$('report').textContent;
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents($('report'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('copyNote').textContent='Текст виділено. Натисни Ctrl+C, щоб скопіювати.'};
+  try{navigator.clipboard.writeText(t).then(()=>{$('copyNote').textContent='Скопійовано.'},fallback)}catch(e){fallback()}
+});
+
+/* ---------- init ---------- */
+renderRound();renderSort();renderOcean();renderClasses();renderExps();renderChecks();renderTable();setStatus();drawSee(null);updateStars();
+showTab(['p1','p2','p3','p4','p5','p6'].includes(S.tab)?S.tab:'p1');
+})();
+</script>
+</body></html>
