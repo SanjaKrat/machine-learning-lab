@@ -1,6 +1,5 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Лабораторія машинного навчання</title>
-</head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Rubik:wght@400;500;600;700&display=swap">
 <style>
@@ -143,8 +142,12 @@ label.q{display:block;font-weight:600;margin:0 0 6px}
 .bar .fill{height:100%;width:0;transition:width .35s}
 .bar.a .fill{background:var(--blue)} .bar.b .fill{background:var(--orange)}
 .bar .pct{font-variant-numeric:tabular-nums;text-align:right}
-.trainbar{height:10px;background:var(--grid);border-radius:999px;overflow:hidden}
-.trainbar i{display:block;height:100%;width:0;background:var(--green)}
+.netrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.arch{font-family:var(--display);font-weight:700;font-size:14px;background:var(--violet-soft);color:var(--violet);border-radius:10px;padding:6px 10px;margin-right:auto}
+.netrow select{padding:6px 10px}
+.lossbox{border:2px solid var(--line);border-radius:14px;padding:10px;background:var(--bg)}
+.lossbox canvas{width:100%;height:auto;display:block}
+.lossmeta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;margin-top:6px}
 .status{display:inline-flex;gap:6px;align-items:center;font-weight:600;font-size:14px;border-radius:999px;padding:4px 12px}
 .status.off{background:var(--grid);color:var(--muted)}
 .status.on{background:var(--green-soft);color:var(--green)}
@@ -263,7 +266,7 @@ pre.report{white-space:pre-wrap;background:var(--paper);border:2px dashed var(--
   <p class="lead">Створи власну модель машинного навчання. Вона вчитиметься розрізняти два класи малюнків. Малюй мишкою в квадраті.</p>
   <div class="rule">
     <div><b>1 · Дані</b><span>Намалюй приклади й додай у клас A або B. Щонайменше по 5.</span></div>
-    <div><b>2 · Навчання</b><span>Натисни «Навчити модель». Вона запам’ятає, чим класи відрізняються.</span></div>
+    <div><b>2 · Навчання</b><span>Натисни «Навчити модель». Нейромережа 120 разів перегляне приклади й підкрутить ваги так, щоб помилка зменшувалась.</span></div>
     <div><b>3 · Перевірка</b><span>Перемкнись на «Перевірку», малюй нове й дивись, що скаже модель.</span></div>
   </div>
   <div class="card" style="margin-bottom:16px">
@@ -287,7 +290,7 @@ pre.report{white-space:pre-wrap;background:var(--paper);border:2px dashed var(--
       <div class="row" id="testBtns" hidden>
         <button class="btn small" id="clearPad2">Стерти й намалювати нове</button>
       </div>
-      <div class="seebox"><canvas id="see" width="28" height="28" aria-label="Що бачить модель"></canvas><span class="note">Так малюнок «бачить» модель: 28 × 28 клітинок. Лише числа, скільки фарби в кожній клітинці.</span></div>
+      <div class="seebox"><canvas id="see" width="14" height="14" aria-label="Що бачить модель"></canvas><span class="note">Так малюнок «бачить» нейромережа: 14 × 14 = 196 чисел, скільки фарби в кожній клітинці.</span></div>
     </div>
     <div class="stack">
       <div class="classes">
@@ -308,7 +311,16 @@ pre.report{white-space:pre-wrap;background:var(--paper);border:2px dashed var(--
           <button class="btn primary" id="trainBtn">🧠 Навчити модель</button>
           <span class="status off" id="mstatus">Модель ще не навчена</span>
         </div>
-        <div class="trainbar"><i id="trainFill"></i></div>
+        <div class="netrow">
+          <span class="arch" id="netArch"></span>
+          <label for="hid" class="note">Нейронів у прихованому шарі</label>
+          <select id="hid" style="width:auto"><option>2</option><option>4</option><option selected>8</option><option>16</option></select>
+        </div>
+        <div class="lossbox">
+          <canvas id="loss" width="640" height="180" aria-label="Графік помилки під час навчання"></canvas>
+          <div class="lossmeta"><span id="epochTxt">Епоха 0 / 120</span><span id="lossTxt">Помилка —</span><span id="accTxt">Правильно на прикладах —</span></div>
+        </div>
+        <p class="note" style="margin:0">Спробуй: 2 нейрони проти 16. Або навчи двічі на тих самих даних — результат трохи відрізнятиметься, бо на старті ваги випадкові.</p>
         <div id="predictBox">
           <h3 style="margin-bottom:10px">Що думає модель</h3>
           <div class="bars">
@@ -397,7 +409,8 @@ pre.report{white-space:pre-wrap;background:var(--paper);border:2px dashed var(--
 
 <!-- ============ TAB 6 ============ -->
 <section class="pane" id="p6" role="tabpanel" hidden>
-  <div class="head"><h2>Результат</h2><span class="tag">Покажи вчителю</span></div>
+  <div class="head"><h2>Результат</h2><span class="tag">Скопіюй звіт і надішли вчителю</span></div>
+  <p class="lead">У полі «Мій звіт» унизу зібрано всі твої відповіді з усіх вкладок. Допиши висновки, натисни «Копіювати звіт» і надішли текст учителю. Відповіді зберігаються в цьому браузері, тож можна повертатися й доробляти.</p>
   <div class="sum" id="sumCards"></div>
   <div class="stack" style="margin-top:18px">
     <div class="card">
@@ -630,7 +643,60 @@ function features(){
 function norm(v){let m=0;for(const a of v)m+=a;m/=v.length;const o=v.map(a=>a-m);let n=0;for(const a of o)n+=a*a;n=Math.sqrt(n)||1;return o.map(a=>a/n)}
 function dot(a,b){let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s}
 const see=$('see'),sctx=see.getContext('2d');
-function drawSee(v){sctx.fillStyle='#ffffff';sctx.fillRect(0,0,28,28);if(!v)return;const img=sctx.createImageData(28,28);for(let i=0;i<784;i++){const a=Math.min(1,v[i]*1.3),c=Math.round(255-a*230);img.data[i*4]=c;img.data[i*4+1]=c;img.data[i*4+2]=Math.round(255-a*190);img.data[i*4+3]=255}sctx.putImageData(img,0,0)}
+function drawSee(v){sctx.fillStyle='#ffffff';sctx.fillRect(0,0,14,14);if(!v)return;const p=pool(v);const img=sctx.createImageData(14,14);for(let i=0;i<196;i++){const a=Math.min(1,p[i]*1.3),c=Math.round(255-a*230);img.data[i*4]=c;img.data[i*4+1]=c;img.data[i*4+2]=Math.round(255-a*190);img.data[i*4+3]=255}sctx.putImageData(img,0,0)}
+
+/* ===== Нейромережа, написана вручну: 196 входів → H нейронів (tanh) → 2 виходи (softmax) ===== */
+const EPOCHS=120, LR=0.02;
+let lossHist=[], training=false;
+// 28×28 → 14×14: середнє з кожного квадрата 2×2
+function pool(v){const o=new Array(196);for(let y=0;y<14;y++)for(let x=0;x<14;x++){const i=2*y*28+2*x;o[y*14+x]=(v[i]+v[i+1]+v[i+28]+v[i+29])/4}return o}
+// зсув малюнка на 1 клітинку (щоб мережа не «зубрила» точне положення)
+function shift(p,dx,dy){if(!dx&&!dy)return p;const o=new Array(196).fill(0);for(let y=0;y<14;y++)for(let x=0;x<14;x++){const sx=x-dx,sy=y-dy;if(sx>=0&&sx<14&&sy>=0&&sy<14)o[y*14+x]=p[sy*14+sx]}return o}
+// випадкові початкові ваги
+function initNet(H){
+  const r=(n,m,s)=>Array.from({length:n},()=>Array.from({length:m},()=>(Math.random()*2-1)*s));
+  return {H,W1:r(H,196,Math.sqrt(6/(196+H))),b1:new Array(H).fill(0),W2:r(2,H,Math.sqrt(6/(H+2))),b2:[0,0]};
+}
+// пряме проходження: вхід → прихований шар → ймовірності двох класів
+function forward(n,x){
+  const h=new Array(n.H);
+  for(let j=0;j<n.H;j++){let s=n.b1[j];const w=n.W1[j];for(let i=0;i<196;i++)s+=w[i]*x[i];h[j]=Math.tanh(s)}
+  const z=[0,1].map(k=>{let s=n.b2[k];for(let j=0;j<n.H;j++)s+=n.W2[k][j]*h[j];return s});
+  const m=Math.max(z[0],z[1]),e0=Math.exp(z[0]-m),e1=Math.exp(z[1]-m);
+  return {h,p:[e0/(e0+e1),e1/(e0+e1)]};
+}
+// один крок градієнтного спуску на одному прикладі; повертає помилку (перехресна ентропія)
+function step(n,x,y){
+  const {h,p}=forward(n,x);
+  const dz=[p[0]-(y===0?1:0),p[1]-(y===1?1:0)];
+  const dh=new Array(n.H).fill(0);
+  for(let k=0;k<2;k++){for(let j=0;j<n.H;j++){dh[j]+=n.W2[k][j]*dz[k];n.W2[k][j]-=LR*dz[k]*h[j]}n.b2[k]-=LR*dz[k]}
+  for(let j=0;j<n.H;j++){const d=dh[j]*(1-h[j]*h[j]);const w=n.W1[j];for(let i=0;i<196;i++)if(x[i])w[i]-=LR*d*x[i];n.b1[j]-=LR*d}
+  return -Math.log(Math.max(p[y],1e-9));
+}
+const r4=a=>Math.round(a*1e4)/1e4;
+function packNet(n){return{H:n.H,W1:n.W1.map(r=>r.map(r4)),b1:n.b1.map(r4),W2:n.W2.map(r=>r.map(r4)),b2:n.b2.map(r4)}}
+function nWeights(H){return 196*H+H+2*H+2}
+function renderArch(){const H=+$('hid').value;$('netArch').textContent=`196 входів → ${H} нейронів → 2 виходи · ${nWeights(H).toLocaleString('uk-UA')} ваг`}
+const lossCv=$('loss'),lctx=lossCv.getContext('2d');
+function drawLoss(){
+  const W=640,Hh=180,L=48,R=14,T=16,B=30,css=getComputedStyle(document.documentElement);
+  const ink=css.getPropertyValue('--muted').trim()||'#56637F',grid=css.getPropertyValue('--line').trim()||'#C9D3EA',col=css.getPropertyValue('--green').trim()||'#16876A';
+  lctx.clearRect(0,0,W,Hh);lctx.font='13px Rubik, Arial, sans-serif';lctx.fillStyle=ink;lctx.strokeStyle=grid;lctx.lineWidth=1;
+  const max=Math.max(0.8,...lossHist.map(v=>v));const ys=v=>T+(1-v/max)*(Hh-T-B),xs=e=>L+e/EPOCHS*(W-L-R);
+  [0,max/2,max].forEach(v=>{lctx.beginPath();lctx.moveTo(L,ys(v));lctx.lineTo(W-R,ys(v));lctx.stroke();lctx.textAlign='right';lctx.fillText(v.toFixed(2),L-6,ys(v)+4)});
+  lctx.textAlign='left';lctx.fillText('помилка',L+4,T+12);lctx.textAlign='right';lctx.fillText('епохи → '+EPOCHS,W-R,Hh-8);lctx.textAlign='left';lctx.fillText('0',L,Hh-8);
+  if(!lossHist.length){lctx.textAlign='center';lctx.fillText('Тут з’явиться графік: як падає помилка під час навчання',(W+L)/2,Hh/2);return}
+  lctx.strokeStyle=col;lctx.lineWidth=3;lctx.lineJoin='round';lctx.beginPath();
+  lossHist.forEach((v,i)=>{const x=xs(i+1),y=ys(v);i?lctx.lineTo(x,y):lctx.moveTo(x,y)});lctx.stroke();
+  const li=lossHist.length;lctx.fillStyle=col;lctx.beginPath();lctx.arc(xs(li),ys(lossHist[li-1]),5,0,Math.PI*2);lctx.fill();
+}
+function accuracy(n,data){return data.filter(([x,y])=>{const p=forward(n,x).p;return (p[1]>p[0]?1:0)===y}).length/data.length}
+function showTrainMeta(ep,acc){
+  $('epochTxt').textContent=`Епоха ${ep} / ${EPOCHS}`;
+  $('lossTxt').textContent=lossHist.length?`Помилка ${lossHist[lossHist.length-1].toFixed(3)}`:'Помилка —';
+  $('accTxt').textContent=acc==null?'Правильно на прикладах —':`Правильно на прикладах ${Math.round(acc*100)}%`;
+}
 function thumb(){
   const t=document.createElement('canvas');t.width=56;t.height=56;const c=t.getContext('2d');
   c.fillStyle='#FDFEFF';c.fillRect(0,0,56,56);
@@ -669,25 +735,39 @@ function setStatus(){
   st.className='status on';st.textContent=`✓ Навчена на ${model.A.length+model.B.length} прикладах`;
 }
 function train(){
-  const A=S.t4.A,B=S.t4.B;if(!A.length||!B.length)return;
-  const total=A.length+B.length;let i=0;$('trainBtn').disabled=true;
-  const f=$('trainFill');f.style.width='0';
+  const A=S.t4.A,B=S.t4.B;if(!A.length||!B.length||training)return;
+  training=true;$('trainBtn').disabled=true;$('hid').disabled=true;
+  const H=+$('hid').value;
+  const data=[...A.map(e=>[pool(e.v),0]),...B.map(e=>[pool(e.v),1])];
+  const n=initNet(H);lossHist=[];let ep=0;
   const st=$('mstatus');st.className='status old';
-  const tick=setInterval(()=>{i++;f.style.width=Math.min(100,i/total*100)+'%';st.textContent=`Вивчаю приклад ${Math.min(i,total)} з ${total}…`;
-    if(i>=total){clearInterval(tick);
-      model={A:A.map(e=>norm(e.v)),B:B.map(e=>norm(e.v))};stale=false;S.t4.trained=true;S.t4.trainedN=[A.length,B.length];save();setStatus();$('trainBtn').disabled=false;updateStars();
-      $('predNote').textContent='Готово! Перемкнись на «Перевірку» й намалюй щось нове.';
-      if(mode==='test'){const v=features();if(v)predictNow(v)}
-    }},Math.max(40,Math.min(160,1600/total)));
+  showTrainMeta(0,accuracy(n,data));drawLoss();
+  function frame(){
+    for(let r=0;r<1&&ep<EPOCHS;r++){
+      const idx=data.map((d,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
+      let L=0;for(const i of idx){const [x,y]=data[i];L+=step(n,shift(x,Math.floor(Math.random()*3)-1,Math.floor(Math.random()*3)-1),y)}
+      lossHist.push(L/data.length);ep++;
+    }
+    const acc=accuracy(n,data);drawLoss();showTrainMeta(ep,acc);st.textContent=`Навчаюсь… епоха ${ep} з ${EPOCHS}`;
+    if(ep<EPOCHS){requestAnimationFrame(frame);return}
+    model={net:n,A:A.map(e=>norm(e.v)),B:B.map(e=>norm(e.v))};
+    training=false;stale=false;S.t4.trained=true;S.t4.trainedN=[A.length,B.length];
+    S.t4.net=packNet(n);S.t4.loss=lossHist.map(r4);S.t4.acc=acc;save();
+    setStatus();$('trainBtn').disabled=false;$('hid').disabled=false;updateStars();
+    $('predNote').textContent='Готово! Перемкнись на «Перевірку» й намалюй щось нове.';
+    if(mode==='test'){const v=features();if(v)predictNow(v)}
+  }
+  requestAnimationFrame(frame);
 }
 $('trainBtn').addEventListener('click',train);
-function score(list,x){const s=list.map(v=>dot(v,x)).sort((a,b)=>b-a);const k=Math.min(3,s.length);let m=0;for(let i=0;i<k;i++)m+=s[i];return{avg:m/k,best:s[0]}}
+$('hid').value=String(S.t4.net?S.t4.net.H:8);renderArch();
+$('hid').addEventListener('change',()=>{renderArch();if(model)markOld()});
 function predictNow(v){
   if(!model){showPred(null,'Модель ще не навчена. Натисни «Навчити модель».');return}
   if(!v){showPred(null);return}
-  const x=norm(v);const a=score(model.A,x),b=score(model.B,x);
-  const T=6;const ea=Math.exp(T*a.avg),eb=Math.exp(T*b.avg);const pa=ea/(ea+eb);
-  const best=Math.max(a.best,b.best);
+  const pa=forward(model.net,pool(v)).p[0];
+  // окремо перевіряємо, чи схожий малюнок хоч на якийсь приклад (для підказки про «незнайомий об’єкт»)
+  const xn=norm(v);const best=Math.max(...model.A.map(r=>dot(r,xn)),...model.B.map(r=>dot(r,xn)));
   const win=pa>=.5?(S.t4.nameA||'A'):(S.t4.nameB||'B');const conf=Math.round(Math.max(pa,1-pa)*100);
   let note=`Модель вважає, що це <b>${esc(win)}</b> (на ${conf}%).`;
   if(best<0.35)note+=' Але цей малюнок мало схожий на всі приклади. Модель однаково обирає один із двох класів, бо інших вона не знає.';
@@ -712,7 +792,8 @@ $('modeTrain').addEventListener('click',()=>setMode('train'));
 $('modeTest').addEventListener('click',()=>setMode('test'));
 let noteT;function flashNote(t){$('predNote').textContent=t;clearTimeout(noteT)}
 // restore model if trained before
-if(S.t4.trained&&S.t4.A.length&&S.t4.B.length){model={A:S.t4.A.map(e=>norm(e.v)),B:S.t4.B.map(e=>norm(e.v))};}
+if(S.t4.trained&&S.t4.net&&S.t4.A.length&&S.t4.B.length){model={net:S.t4.net,A:S.t4.A.map(e=>norm(e.v)),B:S.t4.B.map(e=>norm(e.v))};lossHist=S.t4.loss||[];showTrainMeta(lossHist.length,S.t4.acc)}else{S.t4.trained=false}
+drawLoss();
 const EXPS=[
  ['Мало даних','Прибери зайве, щоб у кожному класі був лише 1 приклад. Навчи й перевір на 4 нових малюнках. Скільки правильних?'],
  ['Більше даних','Додай до 6–8 різних прикладів у кожен клас (великі, маленькі, різні). Навчи знову. Стало краще?'],
@@ -780,31 +861,58 @@ function renderResult(){
   document.querySelectorAll('#feel button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.f===S.feel)));
   buildReport();
 }
+const COLN={r:'червоний',b:'синій',g:'зелений',v:'фіолетовий'},SHN={o:'круглий',s:'квадратний',t:'трикутний'};
+function descr(c){const e=c[2];return `${COLN[c[0]]} ${SHN[c[1]]}, ${e} ${e===1?'око':'ока'}, ${c[3]?'з ріжками':'без ріжок'}`}
 function buildReport(){
-  const s=tabStars();const R1=ROUNDS.r1,R2=ROUNDS.r2;
+  const s=tabStars(),tot=s.reduce((a,b)=>a+b,0);
+  const L=[];const add=(...x)=>L.push(...x);
   const sc=k=>ROUNDS[k].test.reduce((n,t,i)=>n+(S.t1[k][i]===t[1]?1:0),0);
+  add('ЛАБОРАТОРІЯ МАШИННОГО НАВЧАННЯ · 7 клас · Урок 5',
+      `Учень/учениця: ${S.who||'— (впиши ім’я вгорі сторінки)'}`,
+      `Звіт сформовано: ${new Date().toLocaleString('uk-UA')}`,
+      `Зірочки: ${tot} / 15  (вкладки 1–5: ${s.join(' · ')})`,'');
+  // 1
+  add('━━ 1. НАВЧИ ПРИБУЛЬЦЯ ━━');
+  ['r1','r2'].forEach((k,ri)=>{
+    const R=ROUNDS[k],A=S.t1[k];
+    const fin=Object.keys(A).length===R.test.length;
+    add(`Раунд ${ri+1}: ${fin?`правильно ${sc(k)} / 6`:'ще не завершено'}`);
+    R.test.forEach((t,i)=>{const a=A[i];add(`  ${i+1}) ${descr(t[0])} → моя відповідь: ${a===undefined?'—':a?'глорп':'не глорп'}${fin?(a===t[1]?' ✓':' ✗'):''}`)});
+    add(`  Моє правило: ${(ri?S.t1.g2:S.t1.g1)||'—'}`);
+  });
+  add('');
+  // 2
   const right=SORT.filter((it,i)=>S.t2[i]===it[1]).length;
-  const rows=S.t5.rows.filter(r=>r.t);
-  const feel={3:'😀 можу пояснити',2:'🙂 ще важко пояснити',1:'🤔 потрібна допомога'}[S.feel]||'—';
-  const lines=[
-   `Лабораторія машинного навчання · 7 клас · Урок 5`,
-   `Учень/учениця: ${S.who||'—'}`,
-   `Зірочки: ${s.reduce((a,b)=>a+b,0)} / 15`,
-   ``,
-   `1. Прибулець: раунд 1 — ${sc('r1')}/6, раунд 2 — ${sc('r2')}/6`,
-   `   Моє правило (раунд 2): ${S.t1.g2||'—'}`,
-   `2. Правило чи приклади: ${right}/10`,
-   `3. AI for Oceans: ${OQ.filter((q,i)=>S.t3[i]===q[2]).length}/3. ${S.oceanNote||''}`,
-   `4. Моя модель «${S.t4.nameA}» / «${S.t4.nameB}»: ${S.t4.A.length} + ${S.t4.B.length} прикладів${S.t4.trained?', навчена':''}`,
-   ...S.t4.exp.map((e,i)=>e?`   Експ. ${i+1}: ${e}`:'').filter(Boolean),
-   `5. Teachable Machine: перевірено фото — ${rows.length}, правильно — ${rows.filter(r=>r.o==='так').length}`,
-   S.t5.why?`   Чому помилялась: ${S.t5.why}`:'',
-   ``,
-   `Машинне навчання — це ${S.c1||'…'}`,
-   `Щоб модель класифікувала добре, потрібно ${S.c2||'…'}`,
-   `Самооцінка: ${feel}`
-  ].filter(l=>l!==undefined);
-  $('report').textContent=lines.join('\n');
+  add('━━ 2. ПРАВИЛО ЧИ ПРИКЛАДИ? ━━',`Правильно: ${right} / 10`);
+  SORT.forEach((it,i)=>{const a=S.t2[i];add(`  ${i+1}) ${it[0]} → ${a?(a==='r'?'правило':'машинне навчання'):'—'} ${a?(a===it[1]?'✓':'✗'):''}`)});
+  add('');
+  // 3
+  add('━━ 3. AI FOR OCEANS (завдання 5 А) ━━',`Правильно: ${OQ.filter((q,i)=>S.t3[i]===q[2]).length} / 3`);
+  OQ.forEach((q,i)=>{const a=S.t3[i];add(`  ${i+1}) ${q[0]}`,`     Моя відповідь: ${a===undefined?'—':q[1][a]} ${a===undefined?'':(a===q[2]?'✓':'✗')}`)});
+  add(`  Що змінилось, коли прикладів стало більше: ${S.oceanNote||'—'}`,'');
+  // 4
+  const T=S.t4;
+  add('━━ 4. МОЯ МОДЕЛЬ (нейромережа) ━━',
+      `Класи: «${T.nameA||'A'}» — ${T.A.length} ${plural(T.A.length)}, «${T.nameB||'B'}» — ${T.B.length} ${plural(T.B.length)}`);
+  if(T.trained&&T.net){const lh=T.loss||[];add(`Модель навчена: 196 входів → ${T.net.H} нейронів → 2 виходи (${nWeights(T.net.H)} ваг), ${lh.length} епох`,
+      `Помилка: на початку ${lh.length?lh[0].toFixed(3):'—'}, в кінці ${lh.length?lh[lh.length-1].toFixed(3):'—'} · правильно на прикладах: ${T.acc!=null?Math.round(T.acc*100)+'%':'—'}`)}
+  else add('Модель ще не навчена');
+  add(`Найвища впевненість під час перевірки: ${T.bestConf?T.bestConf+'%':'—'}`,'Експерименти:');
+  EXPS.forEach((e,i)=>add(`  ${i+1}) ${e[0]}: ${(T.exp[i]||'').trim()||'—'}`));
+  add('');
+  // 5
+  const C=S.t5;const done=CHECKS.filter((c,i)=>C.checks[i]).length;
+  add('━━ 5. КІНЬ ЧИ ПОНІ? · Teachable Machine (завдання 5 Б) ━━',`Виконано кроків: ${done} / ${CHECKS.length}`);
+  CHECKS.forEach((c,i)=>add(`  [${C.checks[i]?'x':' '}] ${c}`));
+  const rows=C.rows.filter(r=>r.d||r.t||r.p||r.o);
+  add('Перевірка на нових фото:');
+  if(!rows.length)add('  —');
+  rows.forEach((r,i)=>add(`  ${i+1}) ${r.d||'(без опису)'} → модель: ${r.t||'—'}, ${r.p?r.p+'%':'—'}, правильно: ${r.o||'—'}`));
+  add(`Чому модель помилилась / як виправити: ${C.why||'—'}`,'');
+  // висновки
+  const feel={3:'😀 можу пояснити, як навчається модель, і створив(ла) власну',2:'🙂 модель створив(ла), але пояснити ще важко',1:'🤔 потрібна допомога'}[S.feel]||'—';
+  add('━━ ВИСНОВКИ ━━',`Машинне навчання — це ${S.c1||'…'}`,`Щоб модель класифікувала добре, потрібно ${S.c2||'…'}`,`Самооцінка: ${feel}`);
+  $('report').textContent=L.join('\n');
 }
 $('concl1').addEventListener('input',e=>{S.c1=e.target.value;save();buildReport()});
 $('concl2').addEventListener('input',e=>{S.c2=e.target.value;save();buildReport()});
@@ -820,4 +928,5 @@ renderRound();renderSort();renderOcean();renderClasses();renderExps();renderChec
 showTab(['p1','p2','p3','p4','p5','p6'].includes(S.tab)?S.tab:'p1');
 })();
 </script>
+
 </body></html>
